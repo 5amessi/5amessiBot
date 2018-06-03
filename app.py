@@ -2,7 +2,8 @@
 import random
 from flask import Flask, request
 from pymessenger.bot import Bot
-import os 
+import os
+from Bot import *
 app = Flask(__name__)
 ACCESS_TOKEN = 'EAADl4ii8TZCABACZCjfVTtubaMIV6ZCnZANnfQljWwWn0CZBYAYvaqOInSZAl76lXW0rV7F7k0ZBZAMZBqYRDmOYRiZBtG4qz49HMIwtpOpmdmI8rkv8Hc0EZC9lom75vMvan5rmLWq1OAOM7ExXjEFjUsIXNGzyc22j5YA1Qf44s5IggZDZD'   #ACCESS_TOKEN = os.environ['ACCESS_TOKEN']
 VERIFY_TOKEN = 'miso'   #VERIFY_TOKEN = os.environ['VERIFY_TOKEN']
@@ -57,4 +58,5 @@ def send_message(recipient_id, response):
     return "success"
 
 if __name__ == "__main__":
+    predict()
     app.run()
