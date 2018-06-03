@@ -2,8 +2,7 @@
 import random
 from flask import Flask, request
 from pymessenger.bot import Bot
-import os
-from Bot import *
+import os 
 app = Flask(__name__)
 ACCESS_TOKEN = 'EAADl4ii8TZCABACZCjfVTtubaMIV6ZCnZANnfQljWwWn0CZBYAYvaqOInSZAl76lXW0rV7F7k0ZBZAMZBqYRDmOYRiZBtG4qz49HMIwtpOpmdmI8rkv8Hc0EZC9lom75vMvan5rmLWq1OAOM7ExXjEFjUsIXNGzyc22j5YA1Qf44s5IggZDZD'   #ACCESS_TOKEN = os.environ['ACCESS_TOKEN']
 VERIFY_TOKEN = 'miso'   #VERIFY_TOKEN = os.environ['VERIFY_TOKEN']
@@ -28,7 +27,7 @@ def receive_message():
                 #Facebook Messenger ID for user so we know where to send response back to
                 recipient_id = message['sender']['id']
                 if message['message'].get('text'):
-                    response_sent_text = message['message']['text']
+                    response_sent_text = get_message()
                     send_message(recipient_id, response_sent_text)
                 #if user sends us a GIF, photo,video, or any other non-text item
                 if message['message'].get('attachments'):
