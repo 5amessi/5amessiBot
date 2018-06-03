@@ -2,9 +2,10 @@
 import random
 from flask import Flask, request
 from pymessenger.bot import Bot
-import os 
+import os
+import Bot as bt
 app = Flask(__name__)
-ACCESS_TOKEN = 'EAADl4ii8TZCABACZCjfVTtubaMIV6ZCnZANnfQljWwWn0CZBYAYvaqOInSZAl76lXW0rV7F7k0ZBZAMZBqYRDmOYRiZBtG4qz49HMIwtpOpmdmI8rkv8Hc0EZC9lom75vMvan5rmLWq1OAOM7ExXjEFjUsIXNGzyc22j5YA1Qf44s5IggZDZD'   #ACCESS_TOKEN = os.environ['ACCESS_TOKEN']
+ACCESS_TOKEN = 'EAADl4ii8TZCABAOr1gz7Hvz0tyrVArdOYmIfnjLTnqSamGYOMQ9KcZBvDT5cmNdN62ZBPE2lWnDhW2DxbawEZBcZCLgEzAG3okfbiwqUjJvCVB0xxE1C5jMslPY75cO0CblWlqZAc5I1JhgUfwv5ZBGOIy9tZCyefn1dZBNWegqORwAZDZD'   #ACCESS_TOKEN = os.environ['ACCESS_TOKEN']
 VERIFY_TOKEN = 'miso'   #VERIFY_TOKEN = os.environ['VERIFY_TOKEN']
 bot = Bot (ACCESS_TOKEN)
 
@@ -27,11 +28,12 @@ def receive_message():
                 #Facebook Messenger ID for user so we know where to send response back to
                 recipient_id = message['sender']['id']
                 if message['message'].get('text'):
-                    response_sent_text = get_message()
+                    # print(message['message'].get('text'))
+                    response_sent_text = bt.predict(message['message'].get('text'))
                     send_message(recipient_id, response_sent_text)
                 #if user sends us a GIF, photo,video, or any other non-text item
                 if message['message'].get('attachments'):
-                    response_sent_nontext = get_message()
+                    response_sent_nontext = bt.predict("attaattachmentsch")
                     send_message(recipient_id, response_sent_nontext)
     return "Message Processed"
 

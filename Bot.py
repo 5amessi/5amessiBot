@@ -11,12 +11,15 @@ import string
 from keras.models import load_model
 from keras.models import model_from_json
 from flask import Flask,request
+import spacy
+nlp = spacy.load('en_core_web_sm')
 
 MAX_SEQUENCE_LENGTH = 20
 app = Flask(__name__)
 def load():
     global word2ind
     global ind2label
+    global model
     word2ind = {}
     ind2label = []
     words = pd.read_csv('ind_to_word',header=None)
@@ -26,7 +29,12 @@ def load():
     labels = pd.read_csv('ind2label',header=None)
     for ind , line in enumerate(np.asarray(labels)):
         ind2label.append(line[0])
-
+    json_file = open('model.json', 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    model = model_from_json(loaded_model_json)
+    model.load_weights("model.h5")
+    # model = load_model('miso.h5')
 def seq_data(data):
     list_of_X = []
     for i in range(len(data)):
@@ -38,8 +46,7 @@ def seq_data(data):
                 line.append(0)
         list_of_X.append(line)
     return list_of_X
-import spacy
-nlp = spacy.load('en_core_web_sm')
+
 def ner(data):
     global outner
     outner = []
@@ -67,40 +74,92 @@ def preprocess(data):
                 line.append(str)
         list_of_X.append(line)
     return list_of_X
+def response_(lable):
+    if (lable == "weather"):
+        for ner_ in outner:
+            for ent in ner_.ents:
+                # print(ent.text, " ", ent.label_)
+                if ent.label_ == "GPE":
+                    return "the weather in " + ent.text +" is ..."
+    elif(lable == "make_call"):
+        return "calling ..."
 
+    elif (lable == "open_app"):
+        return "... opening"
+
+    elif (lable == "send_message"):
+        return "i will send message to ..."
+
+    elif (lable == "public_greeting"):
+        return "hello <3"
+
+    elif (lable == "location_app"):
+        return "location"
+
+    elif (lable == "how_are_you"):
+        return "I am fine"
+
+    elif (lable == "introduce_himself"):
+        return "hello ..."
+
+    elif (lable == "introduce_someone"):
+        return "hello ..."
+
+    elif (lable == "asking_for_you_name"):
+        return "My name is 5amessi"
+
+    elif (lable == "feeling_god"):
+        return "good"
+
+    elif (lable == "Conventional_closing"):
+        return "see you soon"
+
+    elif (lable == "feeling_love_with_me"):
+        return "love you to <3"
+
+    elif (lable == "feeling_nice_with_me"):
+        return "nice"
+
+    elif (lable == "Thanking"):
+        return "your welcome"
+
+    elif (lable == "set_alarm"):
+        return "i will wake up you"
+
+    elif (lable == "cansel_alarm"):
+        return "i will cansel it"
+
+    elif (lable == "set_reminder"):
+        return "I will remind you"
+
+    elif (lable == "cansel_reminder"):
+        return "i will cansel it"
+
+    elif (lable == "sleep"):
+        return "Good night <3 :*"
+
+    elif (lable == "bad_statement"):
+        return "say sorry ..."
+# @app.route('/',methods=['POST'])
+def predict(str):
+    # load()
+    inp = [str]
+    inp = preprocess(inp)
+    # print(inp)
+    inp = seq_data(inp)
+    inp = keras.preprocessing.sequence.pad_sequences(inp, MAX_SEQUENCE_LENGTH, padding='pre', truncating='post',value=0)
+    print(inp)
+    out = model.predict(inp)
+    lable = ind2label[np.argmax(out, axis=1)[0]]
+    # print(np.max(out))
+    if(np.max(out) < 0.4 or np.max(inp) == 0):
+        # print("i can't understand you")
+        response = "i can't understand you"
+    else:
+        # print(lable)
+        response = response_(lable)
+    return response
+# app.run(debug = True,port=8085)
 load()
 
-# @app.route('/',methods=['POST'])
-def predict():
-    global out
-    json_file = open('model.json', 'r')
-    loaded_model_json = json_file.read()
-    json_file.close()
-    model = model_from_json(loaded_model_json)
-    model.load_weights("model.h5")
-    inp = input()
-    while(inp != "exit"):
-        inp = [inp]
-        inp = preprocess(inp)
-        print(inp)
-        inp = seq_data(inp)
-        inp = keras.preprocessing.sequence.pad_sequences(inp, MAX_SEQUENCE_LENGTH, padding='pre', truncating='post',value=0)
-        out = model.predict(inp)
-        print(np.max(out))
-        if(np.max(out) < 0.4 or np.max(inp) == 0):
-            print("i can't understand you")
-        else:
-            out = np.argmax(out, axis=1)
-            lable = ind2label[out[0]]
-            print(lable)
-            if (lable == "weather"):
-                for ner_ in outner:
-                    for ent in ner_.ents:
-                        # print(ent.text, " ", ent.label_)
-                        if ent.label_== "GPE":
-                            print(ent.text)
-        inp = input()
-    return ind2label[out[0]]
-# app.run(debug = True,port=8085)
-predict()
 
