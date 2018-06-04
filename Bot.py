@@ -19,9 +19,12 @@ app = Flask(__name__)
 def load():
     global word2ind
     global ind2label
+    global weather
     global model
     word2ind = {}
     ind2label = []
+    weather = {}
+
     words = pd.read_csv('ind_to_word',header=None)
     for ind , line in enumerate(np.asarray(words)):
         word2ind[line[0]] = ind+1
@@ -29,6 +32,11 @@ def load():
     labels = pd.read_csv('ind2label',header=None)
     for ind , line in enumerate(np.asarray(labels)):
         ind2label.append(line[0])
+
+    weather_db = pd.read_csv('DataBase')
+    for line in np.asarray(weather_db):
+        weather[line[0]] = {"T":line[1],"W":line[2]}
+
     json_file = open('model.json', 'r')
     loaded_model_json = json_file.read()
     json_file.close()
@@ -74,13 +82,14 @@ def preprocess(data):
                 line.append(str)
         list_of_X.append(line)
     return list_of_X
+
 def response_(lable):
     if (lable == "weather"):
         for ner_ in outner:
             for ent in ner_.ents:
-                # print(ent.text, " ", ent.label_)
-                if ent.label_ == "GPE":
-                    return "the weather in " + ent.text +" is ..."
+                if ent.label_ == "GPE" and weather.get(ent.text):
+                    return "The weather in " + ent.text +" is "+str(weather.get(ent.text).get('T'))+" and " + weather.get(ent.text).get('W')
+        return "Enter the right City and make sure that the first letter is Capital Letter"
     elif(lable == "make_call"):
         return "calling ..."
 
@@ -115,7 +124,7 @@ def response_(lable):
         return "see you soon"
 
     elif (lable == "feeling_love_with_me"):
-        return "love you to <3"
+        return "I love you more <3"
 
     elif (lable == "feeling_nice_with_me"):
         return "nice"
@@ -161,5 +170,6 @@ def predict(str):
     return response
 # app.run(debug = True,port=8085)
 load()
+print(predict("what is the weather in cairo"))
 
 
