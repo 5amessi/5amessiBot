@@ -27,7 +27,7 @@ pandas==0.23.0
 pathlib==1.0.1
 plac==0.9.6
 preshed==1.0.0
-protobuf==3.5.2.post1
+protobuf==3.15.0
 python-dateutil==2.7.3
 pytz==2018.4
 PyYAML==3.12
